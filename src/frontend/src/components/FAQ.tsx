@@ -4,7 +4,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { motion } from "motion/react";
+import { useRef } from "react";
+import type * as THREE from "three";
 import type { FAQ as FAQType } from "../backend.d";
 import { useFAQs } from "../hooks/useQueries";
 
@@ -41,6 +44,42 @@ const FALLBACK: FAQType[] = [
   },
 ];
 
+function IcosahedronDecor() {
+  const meshRef = useRef<THREE.Mesh>(null!);
+
+  useFrame((state, delta) => {
+    if (meshRef.current) {
+      meshRef.current.rotation.y += delta * 0.3;
+      meshRef.current.rotation.x += delta * 0.15;
+      const pulse = Math.sin(state.clock.elapsedTime * 1.2) * 0.05 + 1;
+      meshRef.current.scale.setScalar(pulse);
+    }
+  });
+
+  return (
+    <group>
+      <mesh ref={meshRef}>
+        <icosahedronGeometry args={[1.5, 2]} />
+        <meshBasicMaterial
+          color={0xa855f7}
+          wireframe
+          transparent
+          opacity={0.6}
+        />
+      </mesh>
+      <mesh>
+        <icosahedronGeometry args={[1.2, 1]} />
+        <meshBasicMaterial
+          color={0x00e5ff}
+          wireframe
+          transparent
+          opacity={0.2}
+        />
+      </mesh>
+    </group>
+  );
+}
+
 function FAQColumn({
   faqs,
   startIndex,
@@ -48,19 +87,26 @@ function FAQColumn({
   return (
     <Accordion type="single" collapsible className="space-y-3">
       {faqs.map((faq, i) => (
-        <AccordionItem
+        <motion.div
           key={faq.question}
-          value={`faq-${startIndex + i}`}
-          data-ocid={`faq.item.${startIndex + i}`}
-          className="glass-card rounded-xl border-0 px-5"
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5, delay: i * 0.08 }}
         >
-          <AccordionTrigger className="text-foreground text-sm font-semibold hover:no-underline py-4 text-left">
-            {faq.question}
-          </AccordionTrigger>
-          <AccordionContent className="text-muted-foreground text-sm leading-relaxed pb-4">
-            {faq.answer}
-          </AccordionContent>
-        </AccordionItem>
+          <AccordionItem
+            value={`faq-${startIndex + i}`}
+            data-ocid={`faq.item.${startIndex + i}`}
+            className="glass-card rounded-xl border-0 px-5"
+          >
+            <AccordionTrigger className="text-foreground text-sm font-semibold hover:no-underline py-4 text-left">
+              {faq.question}
+            </AccordionTrigger>
+            <AccordionContent className="text-muted-foreground text-sm leading-relaxed pb-4">
+              {faq.answer}
+            </AccordionContent>
+          </AccordionItem>
+        </motion.div>
       ))}
     </Accordion>
   );
@@ -100,17 +146,45 @@ export default function FAQ() {
           </p>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.7 }}
-          className="grid lg:grid-cols-2 gap-6"
-          data-ocid="faq.panel"
-        >
-          <FAQColumn faqs={items.slice(0, half)} startIndex={1} />
-          <FAQColumn faqs={items.slice(half)} startIndex={half + 1} />
-        </motion.div>
+        <div className="grid lg:grid-cols-[1fr_auto_1fr] gap-8 items-start">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.7 }}
+            data-ocid="faq.panel"
+          >
+            <FAQColumn faqs={items.slice(0, half)} startIndex={1} />
+          </motion.div>
+
+          {/* 3D Icosahedron Decor - hidden on mobile */}
+          <div className="hidden lg:block w-48 h-48 self-center shrink-0">
+            <Canvas
+              camera={{ position: [0, 0, 5], fov: 45 }}
+              dpr={[1, 1.5]}
+              frameloop="demand"
+              gl={{ antialias: false, alpha: true }}
+              style={{ width: "100%", height: "100%" }}
+            >
+              <ambientLight intensity={0.4} />
+              <pointLight
+                position={[3, 3, 3]}
+                intensity={1.5}
+                color={0xa855f7}
+              />
+              <IcosahedronDecor />
+            </Canvas>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-60px" }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+          >
+            <FAQColumn faqs={items.slice(half)} startIndex={half + 1} />
+          </motion.div>
+        </div>
       </div>
     </section>
   );

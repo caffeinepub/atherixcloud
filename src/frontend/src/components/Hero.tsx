@@ -59,7 +59,7 @@ export default function Hero() {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-xs font-semibold mb-7">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              Next-Generation Cloud Infrastructure
+              Premium Cloud Infrastructure — India, Delhi &amp; Nepal
             </div>
           </motion.div>
 
@@ -82,7 +82,7 @@ export default function Hero() {
           >
             Deploy faster, scale smarter. AtherixCloud delivers enterprise-grade
             performance with NVMe SSD storage, 99.9% uptime guarantee, and 24/7
-            expert support.
+            expert support — serving India, Delhi &amp; Nepal.
           </motion.p>
 
           <motion.div
@@ -169,10 +169,10 @@ export default function Hero() {
             </div>
             <div>
               <div className="text-xs font-semibold text-foreground">
-                Global CDN
+                India &amp; Nepal CDN
               </div>
               <div className="text-xs text-muted-foreground">
-                15 data centers
+                Delhi data center
               </div>
             </div>
           </div>

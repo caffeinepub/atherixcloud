@@ -45,6 +45,87 @@ const cardVariants: Variants = {
 
 const nums = ["01", "02", "03", "04"];
 
+// SVG wireframe cube — pure CSS/SVG, no canvas
+function WireframeCube({ color, size = 60 }: { color: string; size?: number }) {
+  const s = size;
+  const d = s * 0.35;
+  return (
+    <svg
+      width={s + d}
+      height={s + d}
+      viewBox={`0 0 ${s + d} ${s + d}`}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      role="img"
+    >
+      <rect
+        x={d}
+        y={0}
+        width={s}
+        height={s}
+        stroke={color}
+        strokeWidth="1"
+        strokeOpacity="0.3"
+        fill={color}
+        fillOpacity="0.03"
+      />
+      <rect
+        x={0}
+        y={d}
+        width={s}
+        height={s}
+        stroke={color}
+        strokeWidth="1.5"
+        fill={color}
+        fillOpacity="0.06"
+      />
+      <line
+        x1={0}
+        y1={d}
+        x2={d}
+        y2={0}
+        stroke={color}
+        strokeWidth="1"
+        strokeOpacity="0.5"
+      />
+      <line
+        x1={s}
+        y1={d}
+        x2={s + d}
+        y2={0}
+        stroke={color}
+        strokeWidth="1"
+        strokeOpacity="0.5"
+      />
+      <line
+        x1={0}
+        y1={s + d}
+        x2={d}
+        y2={s}
+        stroke={color}
+        strokeWidth="1"
+        strokeOpacity="0.5"
+      />
+      <line
+        x1={s}
+        y1={s + d}
+        x2={s + d}
+        y2={s}
+        stroke={color}
+        strokeWidth="1"
+        strokeOpacity="0.5"
+      />
+    </svg>
+  );
+}
+
+const cubeConfig = [
+  { id: "cube-cyan-lg", color: "oklch(0.84 0.20 191)", size: 56, delay: 0 },
+  { id: "cube-purple", color: "oklch(0.62 0.27 293)", size: 72, delay: 0.3 },
+  { id: "cube-cyan-sm", color: "oklch(0.84 0.20 191)", size: 48, delay: 0.6 },
+];
+
 export default function Features() {
   return (
     <section id="features" className="section-padding relative">
@@ -67,12 +148,41 @@ export default function Features() {
             Why AtherixCloud
           </div>
           <h2 className="font-display font-bold text-3xl lg:text-5xl text-foreground mb-4 tracking-tight">
-            Built for <span className="text-gradient-cyan">Performance</span> &
-            Reliability
+            Built for <span className="text-gradient-cyan">Performance</span>{" "}
+            &amp; Reliability
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Everything you need to run mission-critical applications at scale.
           </p>
+        </motion.div>
+
+        {/* Animated CSS wireframe cubes */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.7 }}
+          className="w-full h-48 mb-12 rounded-2xl overflow-hidden flex items-center justify-center gap-16"
+          style={{ background: "oklch(0.10 0.015 255 / 0.4)" }}
+        >
+          {cubeConfig.map((c, i) => (
+            <motion.div
+              key={c.id}
+              animate={{
+                y: [0, -12, 0],
+                rotateZ: [0, 8, -8, 0],
+              }}
+              transition={{
+                duration: 3 + i * 0.5,
+                delay: c.delay,
+                repeat: Number.POSITIVE_INFINITY,
+                ease: "easeInOut",
+              }}
+              style={{ filter: `drop-shadow(0 0 12px ${c.color})` }}
+            >
+              <WireframeCube color={c.color} size={c.size} />
+            </motion.div>
+          ))}
         </motion.div>
 
         <motion.div
@@ -91,7 +201,6 @@ export default function Features() {
                 data-ocid={`features.item.${i + 1}`}
                 className="premium-card glass-card-hover rounded-2xl p-8 flex flex-col gap-5 relative overflow-hidden"
               >
-                {/* Colored top border bar */}
                 <div
                   className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl"
                   style={{
@@ -100,7 +209,6 @@ export default function Features() {
                       : "linear-gradient(to right, oklch(0.62 0.27 293), transparent)",
                   }}
                 />
-                {/* Card number */}
                 <span
                   className="absolute top-4 right-5 text-3xl font-black text-foreground/5 select-none pointer-events-none leading-none"
                   aria-hidden="true"

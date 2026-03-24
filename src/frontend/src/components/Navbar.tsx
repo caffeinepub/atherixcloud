@@ -1,13 +1,14 @@
-import { Cloud, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
+
+const LOGO_URL =
+  "https://cdn.discordapp.com/attachments/1485645974066954271/1486003475883098326/9e5c0b1c596ee4a5af7c5c335b3091e0.webp?ex=69c3ec15&is=69c29a95&hm=eb2d908219119cbc9d94c44fa6a898529afcd589b11fdb4a3a7f88709c2018c1";
 
 const navLinks = [
   { label: "Home", href: "#home" },
   { label: "Services", href: "#features" },
   { label: "Pricing", href: "#pricing" },
-  { label: "About", href: "#about" },
-  { label: "Contact", href: "#contact" },
 ];
 
 export default function Navbar() {
@@ -39,15 +40,15 @@ export default function Navbar() {
       >
         <a
           href="#home"
-          className="flex items-center gap-2.5 group"
+          className="flex items-center gap-3 group"
           data-ocid="nav.link"
         >
-          <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center group-hover:bg-primary/20 transition-all duration-300 neon-glow">
-            <Cloud className="w-5 h-5 text-primary" />
-          </div>
-          <span className="font-display font-bold text-xl text-foreground tracking-tight">
-            Atherix<span className="text-gradient-cyan">Cloud</span>
-          </span>
+          <img
+            src={LOGO_URL}
+            alt="AtherixCloud Logo"
+            style={{ height: "40px", width: "auto" }}
+            className="object-contain"
+          />
         </a>
 
         <nav

@@ -22,11 +22,18 @@ const footerLinks = {
   ],
   Support: [
     { label: "Help Center", href: "/help" },
-    { label: "Contact Us", href: "#contact" },
     { label: "Status Page", href: "/status" },
     { label: "Documentation", href: "/docs" },
   ],
 };
+
+const PULSE_DOTS = Array.from({ length: 24 }, (_, i) => ({
+  id: `pulse-dot-${i}`,
+  size: 3 + (i % 3),
+  c: i % 3,
+  dur: 1.5 + (i % 4) * 0.4,
+  delay: (i * 0.12) % 2,
+}));
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -64,21 +71,60 @@ export default function Footer() {
               Ready to power your world?
             </h3>
             <p className="text-muted-foreground text-sm">
-              Start deploying in minutes. No credit card required.
+              Open a Discord ticket and get your server running in minutes.
             </p>
           </div>
           <a
-            href="#pricing"
+            href="https://discord.gg/PyawmEuCgp"
+            target="_blank"
+            rel="noopener noreferrer"
             data-ocid="footer.primary_button"
             className="group inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm neon-glow hover:opacity-90 transition-all shrink-0"
           >
-            Get Started Free
+            Get Started
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </a>
         </div>
       </div>
 
-      <div className="max-w-[1200px] mx-auto px-6 pt-16 pb-8">
+      {/* Animated decorative strip */}
+      <div className="relative h-16 overflow-hidden" aria-hidden="true">
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to bottom, oklch(0.12 0.016 255 / 0.6), oklch(0.07 0.018 265))",
+          }}
+        />
+        <div className="absolute inset-0 flex items-center justify-center gap-3 px-8">
+          {PULSE_DOTS.map((dot) => (
+            <span
+              key={dot.id}
+              className="shrink-0 rounded-full"
+              style={{
+                width: `${dot.size}px`,
+                height: `${dot.size}px`,
+                background:
+                  dot.c === 0
+                    ? "oklch(0.84 0.20 191 / 0.7)"
+                    : dot.c === 1
+                      ? "oklch(0.62 0.27 293 / 0.5)"
+                      : "oklch(0.75 0.15 220 / 0.4)",
+                animation: `pulse ${dot.dur}s ease-in-out ${dot.delay}s infinite`,
+              }}
+            />
+          ))}
+        </div>
+        <div
+          className="absolute bottom-0 left-0 right-0 h-px"
+          style={{
+            background:
+              "linear-gradient(to right, transparent, oklch(0.84 0.20 191 / 0.2), transparent)",
+          }}
+        />
+      </div>
+
+      <div className="max-w-[1200px] mx-auto px-6 pt-8 pb-8">
         <div className="grid lg:grid-cols-5 gap-12 mb-12">
           <div className="lg:col-span-2">
             <a href="#home" className="flex items-center gap-2.5 mb-5">
@@ -91,7 +137,7 @@ export default function Footer() {
             </a>
             <p className="text-muted-foreground text-sm leading-relaxed mb-6 max-w-xs">
               Next-generation cloud hosting built for performance, reliability,
-              and scale. Power your ambitions with AtherixCloud.
+              and scale. Serving India, Delhi &amp; Nepal.
             </p>
             <div className="flex items-center gap-3">
               {(
@@ -114,7 +160,7 @@ export default function Footer() {
                   },
                   {
                     Icon: SiDiscord,
-                    href: "https://discord.com",
+                    href: "https://discord.gg/PyawmEuCgp",
                     label: "Discord",
                   },
                 ] as const
@@ -156,7 +202,7 @@ export default function Footer() {
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-[oklch(0.24_0.025_250/0.3)]">
           <p className="text-xs text-muted-foreground">
-            © {year} AtherixCloud. All rights reserved.
+            &copy; {year} AtherixCloud. All rights reserved.
           </p>
           <p className="text-xs text-muted-foreground">
             Built with ❤️ using{" "}

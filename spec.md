@@ -1,38 +1,44 @@
 # AtherixCloud
 
 ## Current State
-Full-stack dark/cyber-themed hosting landing page with video hero, 3D canvas animation, 8 sections (Navbar, Hero, Features, Pricing, Testimonials, FAQ, ContactAbout, Footer), and a working contact form backed by a Motoko canister. Uses glass-card components, neon glow utilities, and motion/react animations.
+Single-page landing site with: Navbar, Hero (video bg), Features, Pricing (generic 4-plan), Testimonials, FAQ (has 3D icosahedron), ContactAbout (has 3D rings/spheres canvas), Footer (has 3D GridPlane canvas).
 
 ## Requested Changes (Diff)
 
 ### Add
-- Cinematic horizontal divider lines between sections with gradient fade
-- Animated gradient border effect on the "Most Popular" pricing card
-- Subtle animated shimmer/glow sweep on primary CTA buttons
-- Premium stat counters in hero (larger, more dramatic type scale)
-- "Trusted by" logo row section beneath hero stats
-- More refined section badge labels (borderless pill with dot accent)
+- New VPS pricing section with two categories:
+  **Intel VPS Plans** (Indian Node, high-performance):
+  - 8 GB RAM | 2 vCores | 50 GB NVMe — ₹30/mo
+  - 16 GB RAM | 4 vCores | 100 GB NVMe — ₹90/mo
+  - 32 GB RAM | 6 vCores | 200 GB NVMe — ₹100/mo
+  - 48 GB RAM | 8 vCores | 350 GB NVMe — ₹200/mo
+  - 64 GB RAM | 12 vCores | 500 GB NVMe — ₹300/mo
+  
+  **Cheap VPS Plans**:
+  - Basic Tier 1 — ₹60/mo: 4GB RAM, 1 Core, 30GB NVMe
+  - Standard Tier 2 — ₹120/mo: 8GB RAM, 2 Cores, 50GB NVMe
+  - Pro Tier 3 — ₹200/mo: 12GB RAM, 3 Cores, 100GB NVMe
+  - Elite Tier 4 — ₹320/mo: 16GB RAM, 4 Cores, 150GB NVMe
+  
+  All plans include: Full Root Access, DDoS Protection, Ubuntu/Debian OS, NVMe Storage, Monthly Billing, Pterodactyl + Wings Supported, Share IPv4, No Refunds.
+  Notice: INR or NPR payments only, IPv4 included.
+  
+  Buy button: opens https://discord.gg/PyawmEuCgp in new tab, with a note "No billing panel — open a ticket on our Discord to purchase".
 
 ### Modify
-- **Global typography**: increase heading sizes, tighten letter-spacing, switch display font weight to 800+ for hero, use more contrast between heading and body text
-- **Color palette**: deepen background slightly, increase primary cyan vibrancy, add subtle gold/amber accent for premium highlight touches
-- **Navbar**: add subtle frosted glass border line, refine logo treatment, add active-section underline indicator
-- **Hero**: increase heading scale to 7xl/8xl on large screens, remove generic subtitle text verbosity, make stat row more dramatic (larger values, refined labels), make CTA buttons more substantial with icon animations on hover
-- **Features section**: increase card padding, add top gradient bar per card, improve icon container to look more premium
-- **Pricing cards**: larger price display, more generous padding, premium border treatment, animated glow on hover for popular card, improved button style
-- **Testimonials**: add avatar initials circle, show company name more prominently, improve quote styling with large quotation mark watermark
-- **Footer**: more polished layout, subtle top border gradient
-- **index.css**: add `animate-shimmer`, `premium-border` utilities, tighten global spacing scale
+- Navbar: remove "About" and "Contact" links (those sections are deleted). Update Discord social link in footer to https://discord.gg/PyawmEuCgp.
+- Footer: remove 3D GridPlane Canvas, replace with a CSS animated gradient line or simple decorative element.
+- App.tsx: remove FAQ and ContactAbout imports and usages.
 
 ### Remove
-- Generic "Why AtherixCloud" section badge label (replace with refined version)
-- Overly verbose hero subtitle text
+- FAQ section (FAQ.tsx — entire section removed from page)
+- ContactAbout section (ContactAbout.tsx — entire section removed from page)
+- Old Pricing section (Pricing.tsx — replaced with new VPS pricing)
+- All Three.js/React Three Fiber 3D code from remaining components (Footer GridPlane, any leftover Canvas)
 
 ## Implementation Plan
-1. Update `index.css` with new utilities: `animate-shimmer`, `premium-card`, `text-gradient-gold`, tighter letter-spacing helpers
-2. Rewrite `Navbar.tsx` - frosted glass refinement, bolder logo, active link glow
-3. Rewrite `Hero.tsx` - larger heading, more dramatic stats, refined CTA buttons with hover micro-animations
-4. Rewrite `Features.tsx` - premium card style with gradient top bar per card
-5. Rewrite `Pricing.tsx` - larger price type, animated border on popular card, premium button styles
-6. Rewrite `Testimonials.tsx` - avatar initials, large quote mark watermark, more premium card feel
-7. Polish `Footer.tsx` - cleaner layout, refined newsletter section
+1. Create new `VPSPlans.tsx` component with Intel VPS + Cheap VPS categories, CSS/framer-motion animations only, buy button opens Discord link in new tab.
+2. Update `App.tsx`: remove FAQ, ContactAbout, Pricing imports; add VPSPlans.
+3. Update `Navbar.tsx`: remove About and Contact nav links.
+4. Update `Footer.tsx`: remove 3D Canvas/GridPlane, replace with CSS decoration; update Discord social link to https://discord.gg/PyawmEuCgp.
+5. Delete/ignore FAQ.tsx, ContactAbout.tsx, Pricing.tsx (no longer rendered).

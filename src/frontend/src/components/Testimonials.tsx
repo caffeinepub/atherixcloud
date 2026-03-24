@@ -41,6 +41,22 @@ const avatarGradients = [
   "from-[oklch(0.65_0.22_30)] to-[oklch(0.62_0.27_293)]",
 ];
 
+// Nebula particle config — pure CSS, positioned absolutely
+const nebulaParticles = Array.from({ length: 60 }, (_, i) => ({
+  id: i,
+  left: `${(i * 137.5) % 100}%`,
+  top: `${(i * 97.3) % 100}%`,
+  size: 2 + (i % 3),
+  color:
+    i % 3 === 0
+      ? "oklch(0.62 0.27 293 / 0.5)"
+      : i % 3 === 1
+        ? "oklch(0.84 0.20 191 / 0.35)"
+        : "oklch(0.62 0.27 293 / 0.25)",
+  animDelay: `${(i * 0.23) % 5}s`,
+  animDuration: `${3 + (i % 4)}s`,
+}));
+
 function getInitials(name: string) {
   return name
     .split(" ")
@@ -59,6 +75,54 @@ export default function Testimonials() {
       id="testimonials"
       className="section-padding relative overflow-hidden"
     >
+      {/* CSS nebula particle background */}
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+        {nebulaParticles.map((p) => (
+          <span
+            key={p.id}
+            className="nebula-dot"
+            style={{
+              position: "absolute",
+              left: p.left,
+              top: p.top,
+              width: p.size,
+              height: p.size,
+              borderRadius: "50%",
+              background: p.color,
+              animationDelay: p.animDelay,
+              animationDuration: p.animDuration,
+            }}
+          />
+        ))}
+        {/* Radial glow blobs */}
+        <div
+          className="absolute"
+          style={{
+            left: "10%",
+            top: "20%",
+            width: 300,
+            height: 300,
+            borderRadius: "50%",
+            background:
+              "radial-gradient(circle, oklch(0.62 0.27 293 / 0.08) 0%, transparent 70%)",
+            filter: "blur(40px)",
+          }}
+        />
+        <div
+          className="absolute"
+          style={{
+            right: "15%",
+            bottom: "25%",
+            width: 250,
+            height: 250,
+            borderRadius: "50%",
+            background:
+              "radial-gradient(circle, oklch(0.84 0.20 191 / 0.06) 0%, transparent 70%)",
+            filter: "blur(40px)",
+          }}
+        />
+      </div>
+
       <div
         className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-px"
         style={{
@@ -66,7 +130,7 @@ export default function Testimonials() {
             "linear-gradient(to right, transparent, oklch(0.84 0.20 191 / 0.3), transparent)",
         }}
       />
-      <div className="max-w-[1200px] mx-auto px-6">
+      <div className="max-w-[1200px] mx-auto px-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -82,7 +146,8 @@ export default function Testimonials() {
             Developers
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Join thousands of businesses who've made the switch to AtherixCloud.
+            Join thousands of businesses who&apos;ve made the switch to
+            AtherixCloud.
           </p>
         </motion.div>
 
@@ -108,28 +173,28 @@ export default function Testimonials() {
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
                     key={star}
-                    className={`w-4 h-4 ${star <= (t.rating ?? 5) ? "text-primary fill-primary" : "text-muted-foreground"}`}
+                    className={`w-4 h-4 ${
+                      star <= (t.rating ?? 5)
+                        ? "text-primary fill-primary"
+                        : "text-muted-foreground"
+                    }`}
                   />
                 ))}
               </div>
-              <p className="text-muted-foreground text-sm leading-relaxed flex-1 relative z-10">
+              <p className="text-muted-foreground text-sm leading-relaxed flex-1 italic">
                 &ldquo;{t.quote}&rdquo;
               </p>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 pt-2 border-t border-border">
                 <div
-                  className={`w-10 h-10 rounded-full bg-gradient-to-br ${avatarGradients[i % avatarGradients.length]} flex items-center justify-center shrink-0`}
+                  className={`w-10 h-10 rounded-full bg-gradient-to-br ${avatarGradients[i % avatarGradients.length]} flex items-center justify-center text-xs font-bold text-white shrink-0`}
                 >
-                  <span className="text-xs font-bold text-white">
-                    {getInitials(t.name)}
-                  </span>
+                  {getInitials(t.name)}
                 </div>
                 <div>
-                  <div className="font-semibold text-foreground text-sm">
+                  <p className="text-foreground text-sm font-semibold">
                     {t.name}
-                  </div>
-                  <div className="text-xs text-muted-foreground/70">
-                    {t.company}
-                  </div>
+                  </p>
+                  <p className="text-muted-foreground text-xs">{t.company}</p>
                 </div>
               </div>
             </motion.div>

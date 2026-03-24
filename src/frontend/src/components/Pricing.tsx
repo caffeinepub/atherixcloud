@@ -43,7 +43,7 @@ const FALLBACK_PLANS: HostingPlan[] = [
       "4 vCPU Cores",
       "8 GB RAM",
       "Auto-Scaling",
-      "Global CDN",
+      "India & Nepal CDN",
       "Advanced Firewall",
       "Priority Support",
       "Monitoring Dashboard",
@@ -67,6 +67,44 @@ const FALLBACK_PLANS: HostingPlan[] = [
   },
 ];
 
+const orbConfig = [
+  {
+    id: "orb-cyan-1",
+    size: 64,
+    color: "oklch(0.84 0.20 191)",
+    delay: 0,
+    duration: 4,
+  },
+  {
+    id: "orb-purple-1",
+    size: 80,
+    color: "oklch(0.62 0.27 293)",
+    delay: 0.4,
+    duration: 5,
+  },
+  {
+    id: "orb-cyan-2",
+    size: 56,
+    color: "oklch(0.84 0.20 191)",
+    delay: 0.8,
+    duration: 3.5,
+  },
+  {
+    id: "orb-purple-2",
+    size: 48,
+    color: "oklch(0.62 0.27 293)",
+    delay: 1.2,
+    duration: 4.5,
+  },
+  {
+    id: "orb-cyan-3",
+    size: 72,
+    color: "oklch(0.84 0.20 191)",
+    delay: 0.2,
+    duration: 4.2,
+  },
+];
+
 export default function Pricing() {
   const { data: plans } = useHostingPlans();
   const displayPlans = plans && plans.length > 0 ? plans : FALLBACK_PLANS;
@@ -87,7 +125,7 @@ export default function Pricing() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.7 }}
-          className="text-center mb-16"
+          className="text-center mb-10"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-secondary/30 bg-secondary/5 text-secondary text-xs font-semibold mb-4">
             Transparent Pricing
@@ -101,14 +139,50 @@ export default function Pricing() {
           </p>
         </motion.div>
 
+        {/* Animated CSS glowing orbs */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.8 }}
+          className="w-full h-44 mb-12 rounded-2xl overflow-hidden flex items-center justify-center gap-10"
+          style={{ background: "oklch(0.10 0.015 255 / 0.3)" }}
+        >
+          {orbConfig.map((orb) => (
+            <motion.div
+              key={orb.id}
+              animate={{
+                y: [0, -10, 0],
+                scale: [1, 1.1, 1],
+                opacity: [0.7, 1, 0.7],
+              }}
+              transition={{
+                duration: orb.duration,
+                delay: orb.delay,
+                repeat: Number.POSITIVE_INFINITY,
+                ease: "easeInOut",
+              }}
+              style={{
+                width: orb.size,
+                height: orb.size,
+                borderRadius: "50%",
+                background: `radial-gradient(circle at 35% 35%, ${orb.color}, transparent 70%)`,
+                border: `1px solid ${orb.color}`,
+                boxShadow: `0 0 20px ${orb.color}, 0 0 40px ${orb.color.replace(")", " / 0.3)")}`,
+                flexShrink: 0,
+              }}
+            />
+          ))}
+        </motion.div>
+
         <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-6">
           {displayPlans.map((plan, i) => {
             const isPopular = i === popularIdx;
             return (
               <motion.div
                 key={plan.name}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: 40, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
                 data-ocid={`pricing.item.${i + 1}`}
