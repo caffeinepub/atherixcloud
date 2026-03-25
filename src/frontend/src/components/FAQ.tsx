@@ -4,81 +4,46 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Canvas, useFrame } from "@react-three/fiber";
 import { motion } from "motion/react";
-import { useRef } from "react";
-import type * as THREE from "three";
-import type { FAQ as FAQType } from "../backend.d";
 import { useFAQs } from "../hooks/useQueries";
+
+interface FAQType {
+  question: string;
+  answer: string;
+}
 
 const FALLBACK: FAQType[] = [
   {
     question: "What hosting plans do you offer?",
     answer:
-      "We offer Shared Hosting starting at $4.99/mo, VPS from $19.99/mo, Cloud Hosting from $29.99/mo, and Dedicated Servers from $79.99/mo. Each plan is designed for different scale requirements.",
+      "We offer VPS hosting in two categories: Intel VPS (high-performance, Indian nodes) and Cheap VPS (budget-friendly, dedicated resources). All plans are billed in INR/NPR.",
   },
   {
-    question: "Can I upgrade or downgrade my plan?",
+    question: "How do I purchase a plan?",
     answer:
-      "Absolutely. You can upgrade your plan at any time directly from your control panel. Downgrades take effect at the next billing cycle. All migrations are handled with zero downtime.",
+      "We don't have a billing panel. Join our Discord server and open a ticket to purchase any plan. Our team will guide you through the process.",
   },
   {
     question: "What is your uptime guarantee?",
     answer:
-      "We guarantee 99.9% uptime for all plans, backed by our SLA. Dedicated Server plans include a 99.99% SLA. If we fail to meet this, you'll receive credit on your next invoice.",
+      "We guarantee 99.9% uptime for all VPS plans. Our Indian nodes are optimised for low-latency access from India, Delhi, and Nepal.",
   },
   {
     question: "Do you offer free migrations?",
     answer:
-      "Yes! Our expert migration team will move your website, databases, and emails for free. We handle the entire process with zero downtime so you can focus on your business.",
+      "Yes! Open a ticket on our Discord and our team will assist with migrating your existing setup to AtherixCloud.",
   },
   {
-    question: "Is there a money-back guarantee?",
+    question: "Is there DDoS protection?",
     answer:
-      "We offer a 30-day money-back guarantee on all shared and cloud hosting plans. If you're not 100% satisfied, just contact our support team and we'll issue a full refund.",
+      "All plans include DDoS protection. Our multi-layered mitigation system filters malicious traffic in real time to keep your services online.",
   },
   {
-    question: "How does DDoS protection work?",
+    question: "Which OS is supported?",
     answer:
-      "All plans include our multi-layered DDoS mitigation system that automatically detects and filters malicious traffic in real time, keeping your applications protected and online during attacks.",
+      "All VPS plans support Ubuntu and Debian. Pterodactyl + Wings panel is also supported out of the box for game server hosting.",
   },
 ];
-
-function IcosahedronDecor() {
-  const meshRef = useRef<THREE.Mesh>(null!);
-
-  useFrame((state, delta) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += delta * 0.3;
-      meshRef.current.rotation.x += delta * 0.15;
-      const pulse = Math.sin(state.clock.elapsedTime * 1.2) * 0.05 + 1;
-      meshRef.current.scale.setScalar(pulse);
-    }
-  });
-
-  return (
-    <group>
-      <mesh ref={meshRef}>
-        <icosahedronGeometry args={[1.5, 2]} />
-        <meshBasicMaterial
-          color={0xa855f7}
-          wireframe
-          transparent
-          opacity={0.6}
-        />
-      </mesh>
-      <mesh>
-        <icosahedronGeometry args={[1.2, 1]} />
-        <meshBasicMaterial
-          color={0x00e5ff}
-          wireframe
-          transparent
-          opacity={0.2}
-        />
-      </mesh>
-    </group>
-  );
-}
 
 function FAQColumn({
   faqs,
@@ -114,7 +79,8 @@ function FAQColumn({
 
 export default function FAQ() {
   const { data } = useFAQs();
-  const items = data && data.length > 0 ? data : FALLBACK;
+  const items =
+    data && data.length > 0 ? (data as unknown as FAQType[]) : FALLBACK;
   const half = Math.ceil(items.length / 2);
 
   return (
@@ -146,7 +112,7 @@ export default function FAQ() {
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-[1fr_auto_1fr] gap-8 items-start">
+        <div className="grid lg:grid-cols-2 gap-8 items-start">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -156,26 +122,6 @@ export default function FAQ() {
           >
             <FAQColumn faqs={items.slice(0, half)} startIndex={1} />
           </motion.div>
-
-          {/* 3D Icosahedron Decor - hidden on mobile */}
-          <div className="hidden lg:block w-48 h-48 self-center shrink-0">
-            <Canvas
-              camera={{ position: [0, 0, 5], fov: 45 }}
-              dpr={[1, 1.5]}
-              frameloop="demand"
-              gl={{ antialias: false, alpha: true }}
-              style={{ width: "100%", height: "100%" }}
-            >
-              <ambientLight intensity={0.4} />
-              <pointLight
-                position={[3, 3, 3]}
-                intensity={1.5}
-                color={0xa855f7}
-              />
-              <IcosahedronDecor />
-            </Canvas>
-          </div>
-
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}

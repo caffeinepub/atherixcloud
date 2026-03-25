@@ -8,25 +8,14 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
-export const FAQ = IDL.Record({ 'question' : IDL.Text, 'answer' : IDL.Text });
-export const HostingPlanType = IDL.Variant({
-  'vps' : IDL.Null,
-  'cloud' : IDL.Null,
-  'sharedPlan' : IDL.Null,
-  'dedicated' : IDL.Null,
-});
-export const HostingPlan = IDL.Record({
+export const VPSPlanInput = IDL.Record({
+  'id' : IDL.Text,
+  'ram' : IDL.Text,
   'features' : IDL.Vec(IDL.Text),
   'name' : IDL.Text,
-  'description' : IDL.Text,
-  'price' : IDL.Float64,
-  'planType' : HostingPlanType,
-});
-export const Testimonial = IDL.Record({
-  'name' : IDL.Text,
-  'quote' : IDL.Text,
-  'company' : IDL.Text,
-  'rating' : IDL.Nat8,
+  'cores' : IDL.Text,
+  'category' : IDL.Text,
+  'price' : IDL.Nat,
 });
 export const Time = IDL.Int;
 export const Submission = IDL.Record({
@@ -35,6 +24,15 @@ export const Submission = IDL.Record({
   'message' : IDL.Text,
   'timestamp' : Time,
 });
+export const VPSPlan = IDL.Record({
+  'id' : IDL.Text,
+  'ram' : IDL.Text,
+  'features' : IDL.Vec(IDL.Text),
+  'name' : IDL.Text,
+  'cores' : IDL.Text,
+  'category' : IDL.Text,
+  'price' : IDL.Nat,
+});
 export const ContactFormInput = IDL.Record({
   'name' : IDL.Text,
   'email' : IDL.Text,
@@ -42,38 +40,26 @@ export const ContactFormInput = IDL.Record({
 });
 
 export const idlService = IDL.Service({
-  'addFAQ' : IDL.Func([FAQ], [], []),
-  'addHostingPlan' : IDL.Func([HostingPlan], [], []),
-  'addTestimonial' : IDL.Func([Testimonial], [], []),
+  'addVPSPlan' : IDL.Func([VPSPlanInput], [IDL.Text], []),
+  'adminLogin' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
+  'deleteVPSPlan' : IDL.Func([IDL.Text], [IDL.Bool], []),
   'getAllSubmissions' : IDL.Func([], [IDL.Vec(Submission)], ['query']),
-  'getFAQs' : IDL.Func([], [IDL.Vec(FAQ)], ['query']),
-  'getHostingPlans' : IDL.Func([], [IDL.Vec(HostingPlan)], ['query']),
-  'getTestimonials' : IDL.Func([], [IDL.Vec(Testimonial)], ['query']),
+  'getVPSPlans' : IDL.Func([], [IDL.Vec(VPSPlan)], ['query']),
   'submitContactForm' : IDL.Func([ContactFormInput], [], []),
+  'updateVPSPlan' : IDL.Func([IDL.Text, VPSPlan], [IDL.Bool], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
-  const FAQ = IDL.Record({ 'question' : IDL.Text, 'answer' : IDL.Text });
-  const HostingPlanType = IDL.Variant({
-    'vps' : IDL.Null,
-    'cloud' : IDL.Null,
-    'sharedPlan' : IDL.Null,
-    'dedicated' : IDL.Null,
-  });
-  const HostingPlan = IDL.Record({
+  const VPSPlanInput = IDL.Record({
+    'id' : IDL.Text,
+    'ram' : IDL.Text,
     'features' : IDL.Vec(IDL.Text),
     'name' : IDL.Text,
-    'description' : IDL.Text,
-    'price' : IDL.Float64,
-    'planType' : HostingPlanType,
-  });
-  const Testimonial = IDL.Record({
-    'name' : IDL.Text,
-    'quote' : IDL.Text,
-    'company' : IDL.Text,
-    'rating' : IDL.Nat8,
+    'cores' : IDL.Text,
+    'category' : IDL.Text,
+    'price' : IDL.Nat,
   });
   const Time = IDL.Int;
   const Submission = IDL.Record({
@@ -82,6 +68,15 @@ export const idlFactory = ({ IDL }) => {
     'message' : IDL.Text,
     'timestamp' : Time,
   });
+  const VPSPlan = IDL.Record({
+    'id' : IDL.Text,
+    'ram' : IDL.Text,
+    'features' : IDL.Vec(IDL.Text),
+    'name' : IDL.Text,
+    'cores' : IDL.Text,
+    'category' : IDL.Text,
+    'price' : IDL.Nat,
+  });
   const ContactFormInput = IDL.Record({
     'name' : IDL.Text,
     'email' : IDL.Text,
@@ -89,14 +84,13 @@ export const idlFactory = ({ IDL }) => {
   });
   
   return IDL.Service({
-    'addFAQ' : IDL.Func([FAQ], [], []),
-    'addHostingPlan' : IDL.Func([HostingPlan], [], []),
-    'addTestimonial' : IDL.Func([Testimonial], [], []),
+    'addVPSPlan' : IDL.Func([VPSPlanInput], [IDL.Text], []),
+    'adminLogin' : IDL.Func([IDL.Text, IDL.Text], [IDL.Bool], []),
+    'deleteVPSPlan' : IDL.Func([IDL.Text], [IDL.Bool], []),
     'getAllSubmissions' : IDL.Func([], [IDL.Vec(Submission)], ['query']),
-    'getFAQs' : IDL.Func([], [IDL.Vec(FAQ)], ['query']),
-    'getHostingPlans' : IDL.Func([], [IDL.Vec(HostingPlan)], ['query']),
-    'getTestimonials' : IDL.Func([], [IDL.Vec(Testimonial)], ['query']),
+    'getVPSPlans' : IDL.Func([], [IDL.Vec(VPSPlan)], ['query']),
     'submitContactForm' : IDL.Func([ContactFormInput], [], []),
+    'updateVPSPlan' : IDL.Func([IDL.Text, VPSPlan], [IDL.Bool], []),
   });
 };
 

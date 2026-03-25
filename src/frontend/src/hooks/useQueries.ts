@@ -1,48 +1,100 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import type {
-  ContactFormInput,
-  FAQ,
-  HostingPlan,
-  Testimonial,
-} from "../backend.d";
+import type { ContactFormInput, VPSPlan, VPSPlanInput } from "../backend.d";
 import { useActor } from "./useActor";
 
-export function useHostingPlans() {
+// ─── VPS Plans ────────────────────────────────────────────────────────────────
+
+export function useVPSPlans() {
   const { actor, isFetching } = useActor();
-  return useQuery<HostingPlan[]>({
-    queryKey: ["hostingPlans"],
+  return useQuery<VPSPlan[]>({
+    queryKey: ["vpsPlans"],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getHostingPlans();
+      return actor.getVPSPlans();
     },
     enabled: !!actor && !isFetching,
+  });
+}
+
+export function useAddVPSPlan() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: VPSPlanInput) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.addVPSPlan(input);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vpsPlans"] });
+    },
+    onError: () => {
+      toast.error("Failed to add plan.");
+    },
+  });
+}
+
+export function useUpdateVPSPlan() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, plan }: { id: string; plan: VPSPlan }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.updateVPSPlan(id, plan);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vpsPlans"] });
+    },
+    onError: () => {
+      toast.error("Failed to update plan.");
+    },
+  });
+}
+
+export function useDeleteVPSPlan() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.deleteVPSPlan(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["vpsPlans"] });
+    },
+    onError: () => {
+      toast.error("Failed to delete plan.");
+    },
+  });
+}
+
+// ─── Legacy stubs (components still import these) ────────────────────────────
+
+export function useHostingPlans() {
+  return useQuery<never[]>({
+    queryKey: ["hostingPlans"],
+    queryFn: async () => [],
+    enabled: false,
   });
 }
 
 export function useTestimonials() {
-  const { actor, isFetching } = useActor();
-  return useQuery<Testimonial[]>({
+  return useQuery<never[]>({
     queryKey: ["testimonials"],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getTestimonials();
-    },
-    enabled: !!actor && !isFetching,
+    queryFn: async () => [],
+    enabled: false,
   });
 }
 
 export function useFAQs() {
-  const { actor, isFetching } = useActor();
-  return useQuery<FAQ[]>({
+  return useQuery<never[]>({
     queryKey: ["faqs"],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getFAQs();
-    },
-    enabled: !!actor && !isFetching,
+    queryFn: async () => [],
+    enabled: false,
   });
 }
+
+// ─── Contact form ─────────────────────────────────────────────────────────────
 
 export function useSubmitContactForm() {
   const { actor } = useActor();

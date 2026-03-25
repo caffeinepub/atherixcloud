@@ -7,18 +7,25 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export interface FAQ {
-    question: string;
-    answer: string;
-}
-export type Time = bigint;
-export interface HostingPlan {
+export interface VPSPlan {
+    id: string;
+    ram: string;
     features: Array<string>;
     name: string;
-    description: string;
-    price: number;
-    planType: HostingPlanType;
+    cores: string;
+    category: string;
+    price: bigint;
 }
+export interface VPSPlanInput {
+    id: string;
+    ram: string;
+    features: Array<string>;
+    name: string;
+    cores: string;
+    category: string;
+    price: bigint;
+}
+export type Time = bigint;
 export interface Submission {
     name: string;
     email: string;
@@ -30,25 +37,12 @@ export interface ContactFormInput {
     email: string;
     message: string;
 }
-export interface Testimonial {
-    name: string;
-    quote: string;
-    company: string;
-    rating: number;
-}
-export enum HostingPlanType {
-    vps = "vps",
-    cloud = "cloud",
-    sharedPlan = "sharedPlan",
-    dedicated = "dedicated"
-}
 export interface backendInterface {
-    addFAQ(faq: FAQ): Promise<void>;
-    addHostingPlan(plan: HostingPlan): Promise<void>;
-    addTestimonial(testimonial: Testimonial): Promise<void>;
+    addVPSPlan(input: VPSPlanInput): Promise<string>;
+    adminLogin(email: string, password: string): Promise<boolean>;
+    deleteVPSPlan(id: string): Promise<boolean>;
     getAllSubmissions(): Promise<Array<Submission>>;
-    getFAQs(): Promise<Array<FAQ>>;
-    getHostingPlans(): Promise<Array<HostingPlan>>;
-    getTestimonials(): Promise<Array<Testimonial>>;
+    getVPSPlans(): Promise<Array<VPSPlan>>;
     submitContactForm(input: ContactFormInput): Promise<void>;
+    updateVPSPlan(id: string, plan: VPSPlan): Promise<boolean>;
 }

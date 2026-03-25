@@ -1,14 +1,19 @@
 import { Check, Zap } from "lucide-react";
 import { motion } from "motion/react";
-import type { HostingPlan } from "../backend.d";
 import { useHostingPlans } from "../hooks/useQueries";
+
+interface HostingPlan {
+  name: string;
+  description: string;
+  price: number;
+  features: string[];
+}
 
 const FALLBACK_PLANS: HostingPlan[] = [
   {
     name: "Shared Hosting",
     description: "Perfect for personal sites and small projects.",
     price: 4.99,
-    planType: "sharedPlan" as any,
     features: [
       "5 GB NVMe SSD Storage",
       "1 Website",
@@ -22,7 +27,6 @@ const FALLBACK_PLANS: HostingPlan[] = [
     name: "VPS Hosting",
     description: "For growing apps that need dedicated resources.",
     price: 19.99,
-    planType: "vps" as any,
     features: [
       "50 GB NVMe SSD",
       "2 vCPU Cores",
@@ -37,7 +41,6 @@ const FALLBACK_PLANS: HostingPlan[] = [
     name: "Cloud Hosting",
     description: "Auto-scaling cloud for high-traffic applications.",
     price: 29.99,
-    planType: "cloud" as any,
     features: [
       "100 GB NVMe SSD",
       "4 vCPU Cores",
@@ -53,7 +56,6 @@ const FALLBACK_PLANS: HostingPlan[] = [
     name: "Dedicated Server",
     description: "Maximum power for enterprise workloads.",
     price: 79.99,
-    planType: "dedicated" as any,
     features: [
       "1 TB NVMe SSD",
       "16 vCPU Cores",
@@ -107,7 +109,10 @@ const orbConfig = [
 
 export default function Pricing() {
   const { data: plans } = useHostingPlans();
-  const displayPlans = plans && plans.length > 0 ? plans : FALLBACK_PLANS;
+  const displayPlans =
+    plans && plans.length > 0
+      ? (plans as unknown as HostingPlan[])
+      : FALLBACK_PLANS;
   const popularIdx = 2;
 
   return (

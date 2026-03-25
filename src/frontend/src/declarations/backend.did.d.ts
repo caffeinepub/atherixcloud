@@ -15,40 +15,39 @@ export interface ContactFormInput {
   'email' : string,
   'message' : string,
 }
-export interface FAQ { 'question' : string, 'answer' : string }
-export interface HostingPlan {
-  'features' : Array<string>,
-  'name' : string,
-  'description' : string,
-  'price' : number,
-  'planType' : HostingPlanType,
-}
-export type HostingPlanType = { 'vps' : null } |
-  { 'cloud' : null } |
-  { 'sharedPlan' : null } |
-  { 'dedicated' : null };
 export interface Submission {
   'name' : string,
   'email' : string,
   'message' : string,
   'timestamp' : Time,
 }
-export interface Testimonial {
-  'name' : string,
-  'quote' : string,
-  'company' : string,
-  'rating' : number,
-}
 export type Time = bigint;
+export interface VPSPlan {
+  'id' : string,
+  'ram' : string,
+  'features' : Array<string>,
+  'name' : string,
+  'cores' : string,
+  'category' : string,
+  'price' : bigint,
+}
+export interface VPSPlanInput {
+  'id' : string,
+  'ram' : string,
+  'features' : Array<string>,
+  'name' : string,
+  'cores' : string,
+  'category' : string,
+  'price' : bigint,
+}
 export interface _SERVICE {
-  'addFAQ' : ActorMethod<[FAQ], undefined>,
-  'addHostingPlan' : ActorMethod<[HostingPlan], undefined>,
-  'addTestimonial' : ActorMethod<[Testimonial], undefined>,
+  'addVPSPlan' : ActorMethod<[VPSPlanInput], string>,
+  'adminLogin' : ActorMethod<[string, string], boolean>,
+  'deleteVPSPlan' : ActorMethod<[string], boolean>,
   'getAllSubmissions' : ActorMethod<[], Array<Submission>>,
-  'getFAQs' : ActorMethod<[], Array<FAQ>>,
-  'getHostingPlans' : ActorMethod<[], Array<HostingPlan>>,
-  'getTestimonials' : ActorMethod<[], Array<Testimonial>>,
+  'getVPSPlans' : ActorMethod<[], Array<VPSPlan>>,
   'submitContactForm' : ActorMethod<[ContactFormInput], undefined>,
+  'updateVPSPlan' : ActorMethod<[string, VPSPlan], boolean>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

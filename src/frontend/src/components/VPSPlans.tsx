@@ -2,55 +2,150 @@ import { Badge } from "@/components/ui/badge";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { SiDiscord } from "react-icons/si";
+import type { VPSPlan } from "../backend.d";
+import { useVPSPlans } from "../hooks/useQueries";
 
 const DISCORD_LINK = "https://discord.gg/PyawmEuCgp";
 
-const intelPlans = [
-  { ram: "8 GB", cores: 2, nvme: "50 GB", price: "₹30", popular: false },
-  { ram: "16 GB", cores: 4, nvme: "100 GB", price: "₹90", popular: false },
-  { ram: "32 GB", cores: 6, nvme: "200 GB", price: "₹100", popular: true },
-  { ram: "48 GB", cores: 8, nvme: "350 GB", price: "₹200", popular: false },
-  { ram: "64 GB", cores: 12, nvme: "500 GB", price: "₹300", popular: false },
+// Fallback hardcoded plans if backend is empty
+const FALLBACK_INTEL: VPSPlan[] = [
+  {
+    id: "i1",
+    name: "8 GB Indian Node",
+    category: "Intel VPS",
+    ram: "8 GB",
+    cores: "2",
+    price: BigInt(30),
+    features: [
+      "Full Root Access",
+      "DDoS Protection",
+      "50 GB NVMe",
+      "Share IPv4",
+    ],
+  },
+  {
+    id: "i2",
+    name: "16 GB Indian Node",
+    category: "Intel VPS",
+    ram: "16 GB",
+    cores: "4",
+    price: BigInt(90),
+    features: [
+      "Full Root Access",
+      "DDoS Protection",
+      "100 GB NVMe",
+      "Share IPv4",
+    ],
+  },
+  {
+    id: "i3",
+    name: "32 GB Indian Node",
+    category: "Intel VPS",
+    ram: "32 GB",
+    cores: "6",
+    price: BigInt(100),
+    features: [
+      "Full Root Access",
+      "DDoS Protection",
+      "200 GB NVMe",
+      "Share IPv4",
+    ],
+  },
+  {
+    id: "i4",
+    name: "48 GB Indian Node",
+    category: "Intel VPS",
+    ram: "48 GB",
+    cores: "8",
+    price: BigInt(200),
+    features: [
+      "Full Root Access",
+      "DDoS Protection",
+      "350 GB NVMe",
+      "Share IPv4",
+    ],
+  },
+  {
+    id: "i5",
+    name: "64 GB Indian Node",
+    category: "Intel VPS",
+    ram: "64 GB",
+    cores: "12",
+    price: BigInt(300),
+    features: [
+      "Full Root Access",
+      "DDoS Protection",
+      "500 GB NVMe",
+      "Share IPv4",
+    ],
+  },
 ];
 
-const cheapPlans = [
+const FALLBACK_CHEAP: VPSPlan[] = [
   {
-    tier: "Basic",
-    tierNum: 1,
+    id: "c1",
+    name: "Basic",
+    category: "Cheap VPS",
     ram: "4 GB",
-    cores: 1,
-    nvme: "30 GB",
-    price: "₹60",
-    color: "oklch(0.72 0.17 145)",
+    cores: "1",
+    price: BigInt(60),
+    features: [
+      "Full Root Access",
+      "DDoS Protection",
+      "30 GB NVMe SSD",
+      "Share IPv4",
+    ],
   },
   {
-    tier: "Standard",
-    tierNum: 2,
+    id: "c2",
+    name: "Standard",
+    category: "Cheap VPS",
     ram: "8 GB",
-    cores: 2,
-    nvme: "50 GB",
-    price: "₹120",
-    color: "oklch(0.72 0.18 220)",
+    cores: "2",
+    price: BigInt(120),
+    features: [
+      "Full Root Access",
+      "DDoS Protection",
+      "50 GB NVMe SSD",
+      "Share IPv4",
+    ],
   },
   {
-    tier: "Pro",
-    tierNum: 3,
+    id: "c3",
+    name: "Pro",
+    category: "Cheap VPS",
     ram: "12 GB",
-    cores: 3,
-    nvme: "100 GB",
-    price: "₹200",
-    color: "oklch(0.72 0.21 293)",
+    cores: "3",
+    price: BigInt(200),
+    features: [
+      "Full Root Access",
+      "DDoS Protection",
+      "100 GB NVMe SSD",
+      "Share IPv4",
+    ],
   },
   {
-    tier: "Elite",
-    tierNum: 4,
+    id: "c4",
+    name: "Elite",
+    category: "Cheap VPS",
     ram: "16 GB",
-    cores: 4,
-    nvme: "150 GB",
-    price: "₹320",
-    color: "oklch(0.84 0.20 60)",
+    cores: "4",
+    price: BigInt(320),
+    features: [
+      "Full Root Access",
+      "DDoS Protection",
+      "150 GB NVMe SSD",
+      "Share IPv4",
+    ],
   },
 ];
+
+const CHEAP_COLORS: Record<string, string> = {
+  Basic: "oklch(0.72 0.17 145)",
+  Standard: "oklch(0.72 0.18 220)",
+  Pro: "oklch(0.72 0.21 293)",
+  Elite: "oklch(0.84 0.20 60)",
+};
 
 const included = [
   { text: "Full Root Access", ok: true },
@@ -100,10 +195,18 @@ function StatBadge({
 
 export default function VPSPlans() {
   const [activeTab, setActiveTab] = useState<"intel" | "cheap">("intel");
+  const { data: allPlans } = useVPSPlans();
+
+  const hasBackendPlans = allPlans && allPlans.length > 0;
+  const intelPlans = hasBackendPlans
+    ? allPlans.filter((p) => p.category === "Intel VPS")
+    : FALLBACK_INTEL;
+  const cheapPlans = hasBackendPlans
+    ? allPlans.filter((p) => p.category !== "Intel VPS")
+    : FALLBACK_CHEAP;
 
   return (
     <section id="pricing" className="relative py-24 overflow-hidden">
-      {/* Background glow */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -113,7 +216,6 @@ export default function VPSPlans() {
       />
 
       <div className="max-w-[1200px] mx-auto px-6">
-        {/* Section header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -133,7 +235,6 @@ export default function VPSPlans() {
           </p>
         </motion.div>
 
-        {/* Notice bar */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -156,7 +257,6 @@ export default function VPSPlans() {
           ))}
         </motion.div>
 
-        {/* Tab switcher */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -173,7 +273,7 @@ export default function VPSPlans() {
                 onClick={() => setActiveTab(tab)}
                 className={`relative z-10 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
                   activeTab === tab
-                    ? "text-[oklch(0.05_0.01_265)] "
+                    ? "text-[oklch(0.05_0.01_265)]"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -191,7 +291,6 @@ export default function VPSPlans() {
           </div>
         </motion.div>
 
-        {/* Cards */}
         <AnimatePresence mode="wait">
           {activeTab === "intel" ? (
             <motion.div
@@ -208,21 +307,12 @@ export default function VPSPlans() {
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                 {intelPlans.map((plan, i) => (
                   <motion.div
-                    key={plan.ram}
+                    key={plan.id}
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.08, duration: 0.4 }}
-                    className={`relative flex flex-col rounded-2xl border p-5 glass-card group hover:border-primary/50 transition-all duration-300 hover:shadow-[0_0_28px_oklch(0.84_0.20_191/0.18)] ${
-                      plan.popular
-                        ? "border-primary/50 shadow-[0_0_24px_oklch(0.84_0.20_191/0.14)]"
-                        : "border-[oklch(0.24_0.025_250/0.4)]"
-                    }`}
+                    className="relative flex flex-col rounded-2xl border p-5 glass-card group hover:border-primary/50 transition-all duration-300 hover:shadow-[0_0_28px_oklch(0.84_0.20_191/0.18)] border-[oklch(0.24_0.025_250/0.4)]"
                   >
-                    {plan.popular && (
-                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-[oklch(0.05_0.01_265)] text-[10px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">
-                        Popular
-                      </span>
-                    )}
                     <div className="mb-4">
                       <div className="text-2xl font-display font-bold text-foreground">
                         {plan.ram}
@@ -233,12 +323,19 @@ export default function VPSPlans() {
                     </div>
                     <div className="grid grid-cols-2 gap-2 mb-5">
                       <StatBadge label="vCores" value={plan.cores} />
-                      <StatBadge label="NVMe" value={plan.nvme} />
+                      <StatBadge
+                        label="NVMe"
+                        value={
+                          plan.features.find(
+                            (f) => f.includes("GB") && !f.includes("RAM"),
+                          ) ?? "—"
+                        }
+                      />
                     </div>
                     <div className="mt-auto">
                       <div className="flex items-baseline gap-1 mb-4">
                         <span className="text-2xl font-bold text-gradient-cyan">
-                          {plan.price}
+                          ₹{plan.price.toString()}
                         </span>
                         <span className="text-xs text-muted-foreground">
                           /mo
@@ -263,80 +360,84 @@ export default function VPSPlans() {
                 smaller projects
               </p>
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-4xl mx-auto">
-                {cheapPlans.map((plan, i) => (
-                  <motion.div
-                    key={plan.tier}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1, duration: 0.4 }}
-                    className="relative flex flex-col rounded-2xl border border-[oklch(0.24_0.025_250/0.4)] p-5 glass-card hover:border-[oklch(0.24_0.025_250/0.7)] transition-all duration-300"
-                    style={{
-                      boxShadow: `0 0 0 0 ${plan.color}`,
-                    }}
-                    whileHover={{ boxShadow: `0 0 28px ${plan.color}30` }}
-                  >
-                    <div
-                      className="w-8 h-8 rounded-lg mb-4 flex items-center justify-center text-sm font-bold"
-                      style={{
-                        background: `${plan.color}20`,
-                        color: plan.color,
-                        border: `1px solid ${plan.color}40`,
-                      }}
+                {cheapPlans.map((plan, i) => {
+                  const color =
+                    CHEAP_COLORS[plan.name] ?? "oklch(0.72 0.21 293)";
+                  return (
+                    <motion.div
+                      key={plan.id}
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1, duration: 0.4 }}
+                      className="relative flex flex-col rounded-2xl border border-[oklch(0.24_0.025_250/0.4)] p-5 glass-card hover:border-[oklch(0.24_0.025_250/0.7)] transition-all duration-300"
+                      whileHover={{ boxShadow: `0 0 28px ${color}30` }}
                     >
-                      T{plan.tierNum}
-                    </div>
-                    <div className="font-display font-bold text-lg text-foreground mb-1">
-                      {plan.tier}
-                    </div>
-                    <div className="text-xs text-muted-foreground mb-4">
-                      Tier {plan.tierNum}
-                    </div>
-                    <div className="grid grid-cols-3 gap-1.5 mb-5">
-                      <div className="text-center">
-                        <div className="text-xs text-muted-foreground">RAM</div>
-                        <div className="text-sm font-semibold text-foreground">
-                          {plan.ram}
+                      <div
+                        className="w-8 h-8 rounded-lg mb-4 flex items-center justify-center text-sm font-bold"
+                        style={{
+                          background: `${color}20`,
+                          color,
+                          border: `1px solid ${color}40`,
+                        }}
+                      >
+                        T{i + 1}
+                      </div>
+                      <div className="font-display font-bold text-lg text-foreground mb-1">
+                        {plan.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground mb-4">
+                        Tier {i + 1}
+                      </div>
+                      <div className="grid grid-cols-3 gap-1.5 mb-5">
+                        <div className="text-center">
+                          <div className="text-xs text-muted-foreground">
+                            RAM
+                          </div>
+                          <div className="text-sm font-semibold text-foreground">
+                            {plan.ram}
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-xs text-muted-foreground">
+                            Cores
+                          </div>
+                          <div className="text-sm font-semibold text-foreground">
+                            {plan.cores}
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-xs text-muted-foreground">
+                            NVMe
+                          </div>
+                          <div className="text-sm font-semibold text-foreground">
+                            {plan.features.find(
+                              (f) => f.includes("GB") && !f.includes("RAM"),
+                            ) ?? "—"}
+                          </div>
                         </div>
                       </div>
-                      <div className="text-center">
-                        <div className="text-xs text-muted-foreground">
-                          Cores
+                      <div className="mt-auto">
+                        <div className="flex items-baseline gap-1 mb-4">
+                          <span
+                            className="text-2xl font-bold"
+                            style={{ color }}
+                          >
+                            ₹{plan.price.toString()}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            /mo
+                          </span>
                         </div>
-                        <div className="text-sm font-semibold text-foreground">
-                          {plan.cores}
-                        </div>
+                        <BuyButton />
                       </div>
-                      <div className="text-center">
-                        <div className="text-xs text-muted-foreground">
-                          NVMe
-                        </div>
-                        <div className="text-sm font-semibold text-foreground">
-                          {plan.nvme}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mt-auto">
-                      <div className="flex items-baseline gap-1 mb-4">
-                        <span
-                          className="text-2xl font-bold"
-                          style={{ color: plan.color }}
-                        >
-                          {plan.price}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          /mo
-                        </span>
-                      </div>
-                      <BuyButton />
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  );
+                })}
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* What's included */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

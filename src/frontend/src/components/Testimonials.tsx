@@ -1,7 +1,13 @@
 import { Star } from "lucide-react";
 import { motion } from "motion/react";
-import type { Testimonial } from "../backend.d";
 import { useTestimonials } from "../hooks/useQueries";
+
+interface Testimonial {
+  name: string;
+  company: string;
+  quote: string;
+  rating?: number;
+}
 
 const FALLBACK: Testimonial[] = [
   {
@@ -41,7 +47,6 @@ const avatarGradients = [
   "from-[oklch(0.65_0.22_30)] to-[oklch(0.62_0.27_293)]",
 ];
 
-// Nebula particle config — pure CSS, positioned absolutely
 const nebulaParticles = Array.from({ length: 60 }, (_, i) => ({
   id: i,
   left: `${(i * 137.5) % 100}%`,
@@ -68,14 +73,14 @@ function getInitials(name: string) {
 
 export default function Testimonials() {
   const { data } = useTestimonials();
-  const items = data && data.length > 0 ? data : FALLBACK;
+  const items =
+    data && data.length > 0 ? (data as unknown as Testimonial[]) : FALLBACK;
 
   return (
     <section
       id="testimonials"
       className="section-padding relative overflow-hidden"
     >
-      {/* CSS nebula particle background */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         {nebulaParticles.map((p) => (
           <span
@@ -94,7 +99,6 @@ export default function Testimonials() {
             }}
           />
         ))}
-        {/* Radial glow blobs */}
         <div
           className="absolute"
           style={{
@@ -162,7 +166,6 @@ export default function Testimonials() {
               data-ocid={`testimonials.item.${i + 1}`}
               className="glass-card glass-card-hover rounded-2xl p-6 flex flex-col gap-4 relative overflow-hidden"
             >
-              {/* Decorative quote watermark */}
               <span
                 className="absolute -top-2 -right-1 text-[9rem] font-black text-foreground/[0.04] leading-none select-none pointer-events-none"
                 aria-hidden="true"

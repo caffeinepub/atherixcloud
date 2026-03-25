@@ -89,18 +89,25 @@ export class ExternalBlob {
         return this;
     }
 }
-export interface FAQ {
-    question: string;
-    answer: string;
-}
-export type Time = bigint;
-export interface HostingPlan {
+export interface VPSPlan {
+    id: string;
+    ram: string;
     features: Array<string>;
     name: string;
-    description: string;
-    price: number;
-    planType: HostingPlanType;
+    cores: string;
+    category: string;
+    price: bigint;
 }
+export interface VPSPlanInput {
+    id: string;
+    ram: string;
+    features: Array<string>;
+    name: string;
+    cores: string;
+    category: string;
+    price: bigint;
+}
+export type Time = bigint;
 export interface Submission {
     name: string;
     email: string;
@@ -112,70 +119,56 @@ export interface ContactFormInput {
     email: string;
     message: string;
 }
-export interface Testimonial {
-    name: string;
-    quote: string;
-    company: string;
-    rating: number;
-}
-export enum HostingPlanType {
-    vps = "vps",
-    cloud = "cloud",
-    sharedPlan = "sharedPlan",
-    dedicated = "dedicated"
-}
 export interface backendInterface {
-    addFAQ(faq: FAQ): Promise<void>;
-    addHostingPlan(plan: HostingPlan): Promise<void>;
-    addTestimonial(testimonial: Testimonial): Promise<void>;
+    addVPSPlan(input: VPSPlanInput): Promise<string>;
+    adminLogin(email: string, password: string): Promise<boolean>;
+    deleteVPSPlan(id: string): Promise<boolean>;
     getAllSubmissions(): Promise<Array<Submission>>;
-    getFAQs(): Promise<Array<FAQ>>;
-    getHostingPlans(): Promise<Array<HostingPlan>>;
-    getTestimonials(): Promise<Array<Testimonial>>;
+    getVPSPlans(): Promise<Array<VPSPlan>>;
     submitContactForm(input: ContactFormInput): Promise<void>;
+    updateVPSPlan(id: string, plan: VPSPlan): Promise<boolean>;
 }
-import type { HostingPlan as _HostingPlan, HostingPlanType as _HostingPlanType } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
-    async addFAQ(arg0: FAQ): Promise<void> {
+    async addVPSPlan(arg0: VPSPlanInput): Promise<string> {
         if (this.processError) {
             try {
-                const result = await this.actor.addFAQ(arg0);
+                const result = await this.actor.addVPSPlan(arg0);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.addFAQ(arg0);
+            const result = await this.actor.addVPSPlan(arg0);
             return result;
         }
     }
-    async addHostingPlan(arg0: HostingPlan): Promise<void> {
+    async adminLogin(arg0: string, arg1: string): Promise<boolean> {
         if (this.processError) {
             try {
-                const result = await this.actor.addHostingPlan(to_candid_HostingPlan_n1(this._uploadFile, this._downloadFile, arg0));
+                const result = await this.actor.adminLogin(arg0, arg1);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.addHostingPlan(to_candid_HostingPlan_n1(this._uploadFile, this._downloadFile, arg0));
+            const result = await this.actor.adminLogin(arg0, arg1);
             return result;
         }
     }
-    async addTestimonial(arg0: Testimonial): Promise<void> {
+    async deleteVPSPlan(arg0: string): Promise<boolean> {
         if (this.processError) {
             try {
-                const result = await this.actor.addTestimonial(arg0);
+                const result = await this.actor.deleteVPSPlan(arg0);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.addTestimonial(arg0);
+            const result = await this.actor.deleteVPSPlan(arg0);
             return result;
         }
     }
@@ -193,45 +186,17 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async getFAQs(): Promise<Array<FAQ>> {
+    async getVPSPlans(): Promise<Array<VPSPlan>> {
         if (this.processError) {
             try {
-                const result = await this.actor.getFAQs();
+                const result = await this.actor.getVPSPlans();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getFAQs();
-            return result;
-        }
-    }
-    async getHostingPlans(): Promise<Array<HostingPlan>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getHostingPlans();
-                return from_candid_vec_n5(this._uploadFile, this._downloadFile, result);
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getHostingPlans();
-            return from_candid_vec_n5(this._uploadFile, this._downloadFile, result);
-        }
-    }
-    async getTestimonials(): Promise<Array<Testimonial>> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getTestimonials();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getTestimonials();
+            const result = await this.actor.getVPSPlans();
             return result;
         }
     }
@@ -249,93 +214,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-}
-function from_candid_HostingPlanType_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _HostingPlanType): HostingPlanType {
-    return from_candid_variant_n9(_uploadFile, _downloadFile, value);
-}
-function from_candid_HostingPlan_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _HostingPlan): HostingPlan {
-    return from_candid_record_n7(_uploadFile, _downloadFile, value);
-}
-function from_candid_record_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    features: Array<string>;
-    name: string;
-    description: string;
-    price: number;
-    planType: _HostingPlanType;
-}): {
-    features: Array<string>;
-    name: string;
-    description: string;
-    price: number;
-    planType: HostingPlanType;
-} {
-    return {
-        features: value.features,
-        name: value.name,
-        description: value.description,
-        price: value.price,
-        planType: from_candid_HostingPlanType_n8(_uploadFile, _downloadFile, value.planType)
-    };
-}
-function from_candid_variant_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    vps: null;
-} | {
-    cloud: null;
-} | {
-    sharedPlan: null;
-} | {
-    dedicated: null;
-}): HostingPlanType {
-    return "vps" in value ? HostingPlanType.vps : "cloud" in value ? HostingPlanType.cloud : "sharedPlan" in value ? HostingPlanType.sharedPlan : "dedicated" in value ? HostingPlanType.dedicated : value;
-}
-function from_candid_vec_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_HostingPlan>): Array<HostingPlan> {
-    return value.map((x)=>from_candid_HostingPlan_n6(_uploadFile, _downloadFile, x));
-}
-function to_candid_HostingPlanType_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: HostingPlanType): _HostingPlanType {
-    return to_candid_variant_n4(_uploadFile, _downloadFile, value);
-}
-function to_candid_HostingPlan_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: HostingPlan): _HostingPlan {
-    return to_candid_record_n2(_uploadFile, _downloadFile, value);
-}
-function to_candid_record_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    features: Array<string>;
-    name: string;
-    description: string;
-    price: number;
-    planType: HostingPlanType;
-}): {
-    features: Array<string>;
-    name: string;
-    description: string;
-    price: number;
-    planType: _HostingPlanType;
-} {
-    return {
-        features: value.features,
-        name: value.name,
-        description: value.description,
-        price: value.price,
-        planType: to_candid_HostingPlanType_n3(_uploadFile, _downloadFile, value.planType)
-    };
-}
-function to_candid_variant_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: HostingPlanType): {
-    vps: null;
-} | {
-    cloud: null;
-} | {
-    sharedPlan: null;
-} | {
-    dedicated: null;
-} {
-    return value == HostingPlanType.vps ? {
-        vps: null
-    } : value == HostingPlanType.cloud ? {
-        cloud: null
-    } : value == HostingPlanType.sharedPlan ? {
-        sharedPlan: null
-    } : value == HostingPlanType.dedicated ? {
-        dedicated: null
-    } : value;
+    async updateVPSPlan(arg0: string, arg1: VPSPlan): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateVPSPlan(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateVPSPlan(arg0, arg1);
+            return result;
+        }
+    }
 }
 export interface CreateActorOptions {
     agent?: Agent;
