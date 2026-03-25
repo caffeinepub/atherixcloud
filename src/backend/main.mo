@@ -34,6 +34,13 @@ actor {
 
   let submissions = Map.empty<Text, Submission>();
   let vpsPlans = Map.empty<Text, VPSPlan>();
+  let categories = Map.empty<Text, Text>();
+
+  // Seed default categories
+  do {
+    categories.add("Intel VPS", "Intel VPS");
+    categories.add("Cheap VPS", "Cheap VPS");
+  };
 
   // Seed default plans on first initialization
   do {
@@ -108,6 +115,29 @@ actor {
   public shared ({ caller }) func deleteVPSPlan(id : Text) : async Bool {
     if (vpsPlans.containsKey(id)) {
       vpsPlans.remove(id);
+      true;
+    } else {
+      false;
+    };
+  };
+
+  // Category management
+  public query ({ caller }) func getCategories() : async [Text] {
+    categories.values().toArray();
+  };
+
+  public shared ({ caller }) func addCategory(name : Text) : async Bool {
+    if (categories.containsKey(name)) {
+      false;
+    } else {
+      categories.add(name, name);
+      true;
+    };
+  };
+
+  public shared ({ caller }) func deleteCategory(name : Text) : async Bool {
+    if (categories.containsKey(name)) {
+      categories.remove(name);
       true;
     } else {
       false;

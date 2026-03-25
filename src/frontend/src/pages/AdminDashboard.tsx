@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useNavigate } from "@tanstack/react-router";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus, Tag, Trash2 } from "lucide-react";
 import { motion } from "motion/react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -37,16 +37,24 @@ function generateId() {
   return `plan-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
+type TabType = "plans" | "categories";
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { actor, isFetching } = useActor();
 
+  const [activeTab, setActiveTab] = useState<TabType>("plans");
   const [plans, setPlans] = useState<VPSPlan[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
+  const [loadingCats, setLoadingCats] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<VPSPlan | null>(null);
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [newCatName, setNewCatName] = useState("");
+  const [addingCat, setAddingCat] = useState(false);
+  const [deletingCat, setDeletingCat] = useState<string | null>(null);
 
   const [form, setForm] = useState<{
     name: string;
@@ -58,7 +66,7 @@ export default function AdminDashboard() {
     features: string;
   }>({
     name: "",
-    category: "Intel VPS",
+    category: "",
     price: "",
     ram: "",
     cores: "",
@@ -66,7 +74,6 @@ export default function AdminDashboard() {
     features: "",
   });
 
-  // Guard: redirect if not authenticated
   useEffect(() => {
     if (localStorage.getItem("atherix_admin_auth") !== "true") {
       navigate({ to: "/admin" });
@@ -86,17 +93,31 @@ export default function AdminDashboard() {
     }
   }, [actor]);
 
+  const loadCategories = useCallback(async () => {
+    if (!actor) return;
+    setLoadingCats(true);
+    try {
+      const data = await actor.getCategories();
+      setCategories(data);
+    } catch {
+      toast.error("Failed to load categories");
+    } finally {
+      setLoadingCats(false);
+    }
+  }, [actor]);
+
   useEffect(() => {
     if (actor && !isFetching) {
       loadPlans();
+      loadCategories();
     }
-  }, [actor, isFetching, loadPlans]);
+  }, [actor, isFetching, loadPlans, loadCategories]);
 
   function openAdd() {
     setEditingPlan(null);
     setForm({
       name: "",
-      category: "Intel VPS",
+      category: categories[0] ?? "",
       price: "",
       ram: "",
       cores: "",
@@ -192,13 +213,47 @@ export default function AdminDashboard() {
     }
   }
 
+  async function handleAddCategory() {
+    if (!actor || !newCatName.trim()) return;
+    setAddingCat(true);
+    try {
+      const ok = await actor.addCategory(newCatName.trim());
+      if (ok) {
+        toast.success("Category added");
+        setNewCatName("");
+        await loadCategories();
+      } else {
+        toast.error("Category already exists");
+      }
+    } catch {
+      toast.error("Failed to add category");
+    } finally {
+      setAddingCat(false);
+    }
+  }
+
+  async function handleDeleteCategory(name: string) {
+    if (!actor) return;
+    setDeletingCat(name);
+    try {
+      const ok = await actor.deleteCategory(name);
+      if (ok) {
+        toast.success("Category deleted");
+        await loadCategories();
+      } else {
+        toast.error("Delete failed");
+      }
+    } catch {
+      toast.error("Failed to delete category");
+    } finally {
+      setDeletingCat(null);
+    }
+  }
+
   function handleLogout() {
     localStorage.removeItem("atherix_admin_auth");
     navigate({ to: "/admin" });
   }
-
-  const intelPlans = plans.filter((p) => p.category === "Intel VPS");
-  const cheapPlans = plans.filter((p) => p.category !== "Intel VPS");
 
   return (
     <div className="min-h-screen bg-[oklch(0.07_0.014_265)] text-[oklch(0.92_0.02_265)]">
@@ -221,7 +276,7 @@ export default function AdminDashboard() {
       >
         <div className="flex items-center gap-3">
           <img
-            src="https://cdn.discordapp.com/attachments/1485645974066954271/1486003475883098326/9e5c0b1c596ee4a5af7c5c335b3091e0.webp"
+            src="/assets/logo.webp"
             alt="AtherixCloud"
             className="h-7 w-auto"
           />
@@ -253,8 +308,7 @@ export default function AdminDashboard() {
             VPS Plan Manager
           </h1>
           <p className="text-[oklch(0.55_0.03_265)] text-sm">
-            Add, edit, or remove VPS hosting plans. Changes are reflected live
-            on the site.
+            Add, edit, or remove VPS hosting plans and categories.
           </p>
         </motion.div>
 
@@ -267,8 +321,14 @@ export default function AdminDashboard() {
         >
           {[
             { label: "Total Plans", value: plans.length },
-            { label: "Intel VPS", value: intelPlans.length },
-            { label: "Cheap VPS", value: cheapPlans.length },
+            { label: "Categories", value: categories.length },
+            {
+              label: "Plans per Category",
+              value:
+                categories.length > 0
+                  ? (plans.length / categories.length).toFixed(1)
+                  : "0",
+            },
           ].map((stat) => (
             <div
               key={stat.label}
@@ -284,138 +344,242 @@ export default function AdminDashboard() {
           ))}
         </motion.div>
 
-        {/* Plans table */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="rounded-2xl border border-[oklch(0.20_0.025_250/0.5)] bg-[oklch(0.09_0.014_265/0.7)] overflow-hidden"
-        >
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[oklch(0.20_0.025_250/0.4)]">
-            <h2 className="font-semibold text-[oklch(0.88_0.02_265)] text-sm">
-              All Plans{" "}
-              {loadingPlans && (
-                <span className="text-[oklch(0.50_0.03_265)] font-normal">
-                  Loading...
-                </span>
-              )}
-            </h2>
-            <Button
-              data-ocid="admin.primary_button"
-              onClick={openAdd}
-              className="bg-[oklch(0.84_0.20_191)] hover:bg-[oklch(0.78_0.22_191)] text-[oklch(0.07_0.014_265)] font-semibold text-sm rounded-lg px-4 py-2 hover:shadow-[0_0_16px_oklch(0.84_0.20_191/0.4)] transition-all duration-200"
+        {/* Tabs */}
+        <div className="flex gap-1 mb-6 p-1 rounded-xl bg-[oklch(0.10_0.014_255/0.6)] border border-[oklch(0.20_0.025_250/0.4)] w-fit">
+          {(
+            [
+              { id: "plans", label: "VPS Plans" },
+              { id: "categories", label: "Categories" },
+            ] as { id: TabType; label: string }[]
+          ).map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                activeTab === tab.id
+                  ? "bg-[oklch(0.84_0.20_191)] text-[oklch(0.07_0.014_265)] shadow"
+                  : "text-[oklch(0.60_0.03_265)] hover:text-[oklch(0.88_0.02_265)]"
+              }`}
             >
-              + Add Plan
-            </Button>
-          </div>
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-          {loadingPlans ? (
-            <div
-              data-ocid="admin.loading_state"
-              className="flex items-center justify-center py-16 text-[oklch(0.50_0.03_265)]"
-            >
-              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Loading plans...
+        {/* Plans Tab */}
+        {activeTab === "plans" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="rounded-2xl border border-[oklch(0.20_0.025_250/0.5)] bg-[oklch(0.09_0.014_265/0.7)] overflow-hidden"
+          >
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[oklch(0.20_0.025_250/0.4)]">
+              <h2 className="font-semibold text-[oklch(0.88_0.02_265)] text-sm">
+                All Plans{" "}
+                {loadingPlans && (
+                  <span className="text-[oklch(0.50_0.03_265)] font-normal">
+                    Loading...
+                  </span>
+                )}
+              </h2>
+              <Button
+                data-ocid="admin.primary_button"
+                onClick={openAdd}
+                className="bg-[oklch(0.84_0.20_191)] hover:bg-[oklch(0.78_0.22_191)] text-[oklch(0.07_0.014_265)] font-semibold text-sm rounded-lg px-4 py-2 hover:shadow-[0_0_16px_oklch(0.84_0.20_191/0.4)] transition-all duration-200"
+              >
+                + Add Plan
+              </Button>
             </div>
-          ) : plans.length === 0 ? (
-            <div
-              data-ocid="admin.empty_state"
-              className="text-center py-16 text-[oklch(0.50_0.03_265)]"
-            >
-              <div className="text-4xl mb-3">📦</div>
-              <p className="text-sm">
-                No plans yet. Click "+ Add Plan" to create one.
-              </p>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="border-[oklch(0.20_0.025_250/0.3)] hover:bg-transparent">
-                  {[
-                    "Name",
-                    "Category",
-                    "RAM",
-                    "Cores",
-                    "Price",
-                    "Features",
-                    "Actions",
-                  ].map((h) => (
-                    <TableHead
-                      key={h}
-                      className="text-[oklch(0.55_0.03_265)] text-xs font-semibold uppercase tracking-wider"
-                    >
-                      {h}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {plans.map((plan, i) => (
-                  <TableRow
-                    key={plan.id}
-                    data-ocid={`admin.item.${i + 1}`}
-                    className="border-[oklch(0.20_0.025_250/0.2)] hover:bg-[oklch(0.12_0.016_255/0.4)] transition-colors"
-                  >
-                    <TableCell className="font-medium text-[oklch(0.88_0.02_265)] text-sm">
-                      {plan.name}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        className={`text-xs ${
-                          plan.category === "Intel VPS"
-                            ? "bg-[oklch(0.84_0.20_191/0.12)] text-[oklch(0.84_0.20_191)] border-[oklch(0.84_0.20_191/0.3)]"
-                            : "bg-[oklch(0.72_0.21_293/0.12)] text-[oklch(0.72_0.21_293)] border-[oklch(0.72_0.21_293/0.3)]"
-                        }`}
+
+            {loadingPlans ? (
+              <div className="flex items-center justify-center py-16 text-[oklch(0.50_0.03_265)]">
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Loading plans...
+              </div>
+            ) : plans.length === 0 ? (
+              <div className="text-center py-16 text-[oklch(0.50_0.03_265)]">
+                <div className="text-4xl mb-3">📦</div>
+                <p className="text-sm">
+                  No plans yet. Click "+ Add Plan" to create one.
+                </p>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-[oklch(0.20_0.025_250/0.3)] hover:bg-transparent">
+                    {[
+                      "Name",
+                      "Category",
+                      "RAM",
+                      "Cores",
+                      "Price",
+                      "Features",
+                      "Actions",
+                    ].map((h) => (
+                      <TableHead
+                        key={h}
+                        className="text-[oklch(0.55_0.03_265)] text-xs font-semibold uppercase tracking-wider"
                       >
-                        {plan.category}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-[oklch(0.70_0.03_265)] text-sm">
-                      {plan.ram}
-                    </TableCell>
-                    <TableCell className="text-[oklch(0.70_0.03_265)] text-sm">
-                      {plan.cores}
-                    </TableCell>
-                    <TableCell className="text-[oklch(0.84_0.20_60)] font-semibold text-sm">
-                      ₹{plan.price.toString()}
-                    </TableCell>
-                    <TableCell className="text-[oklch(0.55_0.03_265)] text-xs max-w-[200px] truncate">
-                      {plan.features.slice(0, 3).join(", ")}
-                      {plan.features.length > 3 &&
-                        ` +${plan.features.length - 3} more`}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          data-ocid={`admin.edit_button.${i + 1}`}
-                          size="sm"
-                          variant="outline"
-                          onClick={() => openEdit(plan)}
-                          className="border-[oklch(0.28_0.03_250/0.5)] text-[oklch(0.65_0.04_265)] hover:text-[oklch(0.84_0.20_191)] hover:border-[oklch(0.84_0.20_191/0.4)] text-xs h-7 px-3"
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          data-ocid={`admin.delete_button.${i + 1}`}
-                          size="sm"
-                          variant="outline"
-                          disabled={deletingId === plan.id}
-                          onClick={() => handleDelete(plan.id)}
-                          className="border-[oklch(0.28_0.03_250/0.5)] text-[oklch(0.65_0.04_265)] hover:text-[oklch(0.65_0.22_29)] hover:border-[oklch(0.65_0.22_29/0.4)] text-xs h-7 px-3"
-                        >
-                          {deletingId === plan.id ? "Deleting..." : "Delete"}
-                        </Button>
-                      </div>
-                    </TableCell>
+                        {h}
+                      </TableHead>
+                    ))}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </motion.div>
+                </TableHeader>
+                <TableBody>
+                  {plans.map((plan, i) => (
+                    <TableRow
+                      key={plan.id}
+                      data-ocid={`admin.item.${i + 1}`}
+                      className="border-[oklch(0.20_0.025_250/0.2)] hover:bg-[oklch(0.12_0.016_255/0.4)] transition-colors"
+                    >
+                      <TableCell className="font-medium text-[oklch(0.88_0.02_265)] text-sm">
+                        {plan.name}
+                      </TableCell>
+                      <TableCell>
+                        <Badge className="text-xs bg-[oklch(0.84_0.20_191/0.12)] text-[oklch(0.84_0.20_191)] border-[oklch(0.84_0.20_191/0.3)]">
+                          {plan.category}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-[oklch(0.70_0.03_265)] text-sm">
+                        {plan.ram}
+                      </TableCell>
+                      <TableCell className="text-[oklch(0.70_0.03_265)] text-sm">
+                        {plan.cores}
+                      </TableCell>
+                      <TableCell className="text-[oklch(0.84_0.20_60)] font-semibold text-sm">
+                        ₹{plan.price.toString()}
+                      </TableCell>
+                      <TableCell className="text-[oklch(0.55_0.03_265)] text-xs max-w-[200px] truncate">
+                        {plan.features.slice(0, 3).join(", ")}
+                        {plan.features.length > 3 &&
+                          ` +${plan.features.length - 3} more`}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            data-ocid={`admin.edit_button.${i + 1}`}
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openEdit(plan)}
+                            className="border-[oklch(0.28_0.03_250/0.5)] text-[oklch(0.65_0.04_265)] hover:text-[oklch(0.84_0.20_191)] hover:border-[oklch(0.84_0.20_191/0.4)] text-xs h-7 px-3"
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            data-ocid={`admin.delete_button.${i + 1}`}
+                            size="sm"
+                            variant="outline"
+                            disabled={deletingId === plan.id}
+                            onClick={() => handleDelete(plan.id)}
+                            className="border-[oklch(0.28_0.03_250/0.5)] text-[oklch(0.65_0.04_265)] hover:text-[oklch(0.65_0.22_29)] hover:border-[oklch(0.65_0.22_29/0.4)] text-xs h-7 px-3"
+                          >
+                            {deletingId === plan.id ? "Deleting..." : "Delete"}
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </motion.div>
+        )}
+
+        {/* Categories Tab */}
+        {activeTab === "categories" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="space-y-4"
+          >
+            {/* Add new category */}
+            <div className="rounded-2xl border border-[oklch(0.20_0.025_250/0.5)] bg-[oklch(0.09_0.014_265/0.7)] p-6">
+              <h2 className="font-semibold text-[oklch(0.88_0.02_265)] text-sm mb-4 flex items-center gap-2">
+                <Plus className="w-4 h-4 text-[oklch(0.84_0.20_191)]" />
+                Add New Category
+              </h2>
+              <div className="flex gap-3">
+                <Input
+                  data-ocid="admin.input"
+                  value={newCatName}
+                  onChange={(e) => setNewCatName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleAddCategory()}
+                  placeholder="e.g. Dedicated Servers"
+                  className="bg-[oklch(0.12_0.016_255/0.8)] border-[oklch(0.24_0.025_250/0.5)] text-[oklch(0.92_0.02_265)] text-sm flex-1"
+                />
+                <Button
+                  data-ocid="admin.primary_button"
+                  onClick={handleAddCategory}
+                  disabled={addingCat || !newCatName.trim()}
+                  className="bg-[oklch(0.84_0.20_191)] hover:bg-[oklch(0.78_0.22_191)] text-[oklch(0.07_0.014_265)] font-semibold text-sm px-5"
+                >
+                  {addingCat ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "Add"
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* Categories list */}
+            <div className="rounded-2xl border border-[oklch(0.20_0.025_250/0.5)] bg-[oklch(0.09_0.014_265/0.7)] overflow-hidden">
+              <div className="px-6 py-4 border-b border-[oklch(0.20_0.025_250/0.4)]">
+                <h2 className="font-semibold text-[oklch(0.88_0.02_265)] text-sm flex items-center gap-2">
+                  <Tag className="w-4 h-4 text-[oklch(0.84_0.20_191)]" />
+                  Existing Categories
+                </h2>
+              </div>
+              {loadingCats ? (
+                <div className="flex items-center justify-center py-10 text-[oklch(0.50_0.03_265)]">
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Loading...
+                </div>
+              ) : categories.length === 0 ? (
+                <div className="text-center py-10 text-[oklch(0.50_0.03_265)] text-sm">
+                  No categories yet.
+                </div>
+              ) : (
+                <div className="divide-y divide-[oklch(0.20_0.025_250/0.2)]">
+                  {categories.map((cat, i) => (
+                    <div
+                      key={cat}
+                      data-ocid={`admin.category.${i + 1}`}
+                      className="flex items-center justify-between px-6 py-4 hover:bg-[oklch(0.12_0.016_255/0.4)] transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Tag className="w-4 h-4 text-[oklch(0.55_0.03_265)]" />
+                        <span className="text-sm font-medium text-[oklch(0.88_0.02_265)]">
+                          {cat}
+                        </span>
+                        <span className="text-xs text-[oklch(0.45_0.02_265)]">
+                          {plans.filter((p) => p.category === cat).length} plans
+                        </span>
+                      </div>
+                      <Button
+                        data-ocid={`admin.delete_category.${i + 1}`}
+                        size="sm"
+                        variant="outline"
+                        disabled={deletingCat === cat}
+                        onClick={() => handleDeleteCategory(cat)}
+                        className="border-[oklch(0.28_0.03_250/0.5)] text-[oklch(0.65_0.04_265)] hover:text-[oklch(0.65_0.22_29)] hover:border-[oklch(0.65_0.22_29/0.4)] text-xs h-7 px-3 gap-1.5"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        {deletingCat === cat ? "Deleting..." : "Delete"}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
       </main>
 
-      {/* Add/Edit Dialog */}
+      {/* Add/Edit Plan Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent
           data-ocid="admin.dialog"
@@ -455,21 +619,18 @@ export default function AdminDashboard() {
                     data-ocid="admin.select"
                     className="bg-[oklch(0.12_0.016_255/0.8)] border-[oklch(0.24_0.025_250/0.5)] text-[oklch(0.92_0.02_265)] text-sm"
                   >
-                    <SelectValue />
+                    <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent className="bg-[oklch(0.12_0.016_255)] border-[oklch(0.24_0.025_250/0.5)]">
-                    <SelectItem
-                      value="Intel VPS"
-                      className="text-[oklch(0.88_0.02_265)]"
-                    >
-                      ⚡ Intel VPS
-                    </SelectItem>
-                    <SelectItem
-                      value="Cheap VPS"
-                      className="text-[oklch(0.88_0.02_265)]"
-                    >
-                      💸 Cheap VPS
-                    </SelectItem>
+                    {categories.map((cat) => (
+                      <SelectItem
+                        key={cat}
+                        value={cat}
+                        className="text-[oklch(0.88_0.02_265)]"
+                      >
+                        {cat}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

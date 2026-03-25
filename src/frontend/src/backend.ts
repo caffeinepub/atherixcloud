@@ -127,6 +127,9 @@ export interface backendInterface {
     getVPSPlans(): Promise<Array<VPSPlan>>;
     submitContactForm(input: ContactFormInput): Promise<void>;
     updateVPSPlan(id: string, plan: VPSPlan): Promise<boolean>;
+    getCategories(): Promise<Array<string>>;
+    addCategory(name: string): Promise<boolean>;
+    deleteCategory(name: string): Promise<boolean>;
 }
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
@@ -227,6 +230,18 @@ export class Backend implements backendInterface {
             const result = await this.actor.updateVPSPlan(arg0, arg1);
             return result;
         }
+    }
+    async getCategories(): Promise<Array<string>> {
+        const result = await this.actor.getCategories();
+        return result;
+    }
+    async addCategory(arg0: string): Promise<boolean> {
+        const result = await this.actor.addCategory(arg0);
+        return result;
+    }
+    async deleteCategory(arg0: string): Promise<boolean> {
+        const result = await this.actor.deleteCategory(arg0);
+        return result;
     }
 }
 export interface CreateActorOptions {

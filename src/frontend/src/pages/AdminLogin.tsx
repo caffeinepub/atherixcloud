@@ -74,7 +74,7 @@ export default function AdminLogin() {
       {/* Header */}
       <header className="relative z-10 flex items-center gap-3 px-8 py-5 border-b border-[oklch(0.20_0.025_250/0.5)]">
         <img
-          src="https://cdn.discordapp.com/attachments/1485645974066954271/1486003475883098326/9e5c0b1c596ee4a5af7c5c335b3091e0.webp"
+          src="/assets/logo.webp"
           alt="AtherixCloud"
           className="h-8 w-auto"
         />

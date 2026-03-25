@@ -45,4 +45,7 @@ export interface backendInterface {
     getVPSPlans(): Promise<Array<VPSPlan>>;
     submitContactForm(input: ContactFormInput): Promise<void>;
     updateVPSPlan(id: string, plan: VPSPlan): Promise<boolean>;
+    getCategories(): Promise<Array<string>>;
+    addCategory(name: string): Promise<boolean>;
+    deleteCategory(name: string): Promise<boolean>;
 }
