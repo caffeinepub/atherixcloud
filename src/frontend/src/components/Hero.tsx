@@ -80,7 +80,7 @@ export default function Hero() {
             transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
             className="text-muted-foreground text-lg leading-relaxed mb-8 max-w-xl"
           >
-            Deploy faster, scale smarter. AtherixCloud delivers enterprise-grade
+            Deploy faster, scale smarter. ENDERNET delivers enterprise-grade
             performance with NVMe SSD storage, 99.9% uptime guarantee, and 24/7
             expert support — serving India, Delhi &amp; Nepal.
           </motion.p>

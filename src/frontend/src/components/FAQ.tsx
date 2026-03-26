@@ -31,7 +31,7 @@ const FALLBACK: FAQType[] = [
   {
     question: "Do you offer free migrations?",
     answer:
-      "Yes! Open a ticket on our Discord and our team will assist with migrating your existing setup to AtherixCloud.",
+      "Yes! Open a ticket on our Discord and our team will assist with migrating your existing setup to ENDERNET.",
   },
   {
     question: "Is there DDoS protection?",
@@ -108,7 +108,7 @@ export default function FAQ() {
             <span className="text-gradient-purple">Questions</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Everything you need to know about AtherixCloud hosting.
+            Everything you need to know about ENDERNET hosting.
           </p>
         </motion.div>
 

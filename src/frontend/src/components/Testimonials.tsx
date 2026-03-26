@@ -14,7 +14,7 @@ const FALLBACK: Testimonial[] = [
     name: "Sarah Chen",
     company: "TechFlow Analytics",
     quote:
-      "AtherixCloud transformed our infrastructure. The NVMe SSD performance is incredible — our app loads 3x faster than before.",
+      "ENDERNET transformed our infrastructure. The NVMe SSD performance is incredible — our app loads 3x faster than before.",
     rating: 5,
   },
   {
@@ -28,7 +28,7 @@ const FALLBACK: Testimonial[] = [
     name: "Priya Nair",
     company: "EcomEdge Store",
     quote:
-      "Switched from a major provider and cut hosting costs by 60% with zero downtime migration. AtherixCloud support made it painless.",
+      "Switched from a major provider and cut hosting costs by 60% with zero downtime migration. ENDERNET support made it painless.",
     rating: 5,
   },
   {
@@ -151,7 +151,7 @@ export default function Testimonials() {
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Join thousands of businesses who&apos;ve made the switch to
-            AtherixCloud.
+            ENDERNET.
           </p>
         </motion.div>
 

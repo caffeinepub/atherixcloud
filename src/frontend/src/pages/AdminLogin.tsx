@@ -6,7 +6,9 @@ import { Loader2, Lock } from "lucide-react";
 import { motion } from "motion/react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useActor } from "../hooks/useActor";
+
+const ADMIN_EMAIL = "enderop67@gmail.com";
+const ADMIN_PASSWORD = "enderop67gg#";
 
 const STARS = Array.from({ length: 60 }, (_, i) => ({
   id: `s${i}`,
@@ -19,7 +21,6 @@ const STARS = Array.from({ length: 60 }, (_, i) => ({
 }));
 
 export default function AdminLogin() {
-  const { actor } = useActor();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,24 +28,16 @@ export default function AdminLogin() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    if (!actor) {
-      toast.error("Connecting to backend, please wait...");
-      return;
-    }
     setLoading(true);
-    try {
-      const ok = await actor.adminLogin(email, password);
-      if (ok) {
-        localStorage.setItem("atherix_admin_auth", "true");
-        navigate({ to: "/admin/dashboard" });
-      } else {
-        toast.error("Invalid credentials");
-      }
-    } catch {
-      toast.error("Login failed. Please try again.");
-    } finally {
-      setLoading(false);
+    // Small delay to simulate loading
+    await new Promise((r) => setTimeout(r, 400));
+    if (email.trim() === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      localStorage.setItem("atherix_admin_auth", "true");
+      navigate({ to: "/admin/dashboard" });
+    } else {
+      toast.error("Invalid credentials. Please check your email and password.");
     }
+    setLoading(false);
   }
 
   return (
@@ -73,13 +66,9 @@ export default function AdminLogin() {
 
       {/* Header */}
       <header className="relative z-10 flex items-center gap-3 px-8 py-5 border-b border-[oklch(0.20_0.025_250/0.5)]">
-        <img
-          src="/assets/logo.webp"
-          alt="AtherixCloud"
-          className="h-8 w-auto"
-        />
+        <img src="/assets/logo.webp" alt="ENDERNET" className="h-8 w-auto" />
         <span className="font-display font-bold text-lg text-[oklch(0.95_0.02_265)]">
-          AtherixCloud
+          ENDERNET
         </span>
         <span className="ml-2 text-xs text-[oklch(0.84_0.20_191)] bg-[oklch(0.84_0.20_191/0.1)] border border-[oklch(0.84_0.20_191/0.25)] px-2 py-0.5 rounded-full">
           Admin
@@ -117,7 +106,7 @@ export default function AdminLogin() {
                 Admin Access
               </h1>
               <p className="text-sm text-[oklch(0.55_0.03_265)]">
-                Sign in to manage AtherixCloud
+                Sign in to manage ENDERNET
               </p>
             </div>
 
@@ -132,7 +121,6 @@ export default function AdminLogin() {
                 <Input
                   id="email"
                   type="email"
-                  data-ocid="admin.input"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@example.com"
@@ -150,7 +138,6 @@ export default function AdminLogin() {
                 <Input
                   id="password"
                   type="password"
-                  data-ocid="admin.input"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
@@ -160,7 +147,6 @@ export default function AdminLogin() {
               </div>
               <Button
                 type="submit"
-                data-ocid="admin.submit_button"
                 disabled={loading}
                 className="w-full bg-[oklch(0.84_0.20_191)] hover:bg-[oklch(0.78_0.22_191)] text-[oklch(0.07_0.014_265)] font-bold py-2.5 rounded-xl transition-all duration-200 hover:shadow-[0_0_20px_oklch(0.84_0.20_191/0.4)] mt-2"
               >

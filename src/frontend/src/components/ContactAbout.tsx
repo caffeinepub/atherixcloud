@@ -249,7 +249,7 @@ export default function ContactAbout() {
           >
             <div>
               <h3 className="font-display font-bold text-xl text-foreground mb-6">
-                About AtherixCloud
+                About ENDERNET
               </h3>
               <p className="text-muted-foreground leading-relaxed mb-6">
                 Founded by infrastructure engineers with a mission to

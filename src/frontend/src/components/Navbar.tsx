@@ -42,7 +42,7 @@ export default function Navbar() {
         >
           <img
             src="/assets/logo.webp"
-            alt="AtherixCloud Logo"
+            alt="ENDERNET Logo"
             style={{ height: "40px", width: "auto" }}
             className="object-contain"
           />

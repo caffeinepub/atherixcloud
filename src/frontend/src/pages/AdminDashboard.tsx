@@ -275,13 +275,9 @@ export default function AdminDashboard() {
         className="relative z-10 flex items-center justify-between px-6 py-4 border-b border-[oklch(0.20_0.025_250/0.5)] bg-[oklch(0.09_0.014_265/0.9)] backdrop-blur-sm"
       >
         <div className="flex items-center gap-3">
-          <img
-            src="/assets/logo.webp"
-            alt="AtherixCloud"
-            className="h-7 w-auto"
-          />
+          <img src="/assets/logo.webp" alt="ENDERNET" className="h-7 w-auto" />
           <span className="font-display font-bold text-base text-[oklch(0.95_0.02_265)]">
-            AtherixCloud
+            ENDERNET
           </span>
           <Badge className="bg-[oklch(0.84_0.20_191/0.12)] text-[oklch(0.84_0.20_191)] border-[oklch(0.84_0.20_191/0.3)] text-xs">
             Admin Panel

@@ -145,7 +145,7 @@ export default function Features() {
           className="text-center mb-16"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-xs font-semibold mb-4">
-            Why AtherixCloud
+            Why ENDERNET
           </div>
           <h2 className="font-display font-bold text-3xl lg:text-5xl text-foreground mb-4 tracking-tight">
             Built for <span className="text-gradient-cyan">Performance</span>{" "}

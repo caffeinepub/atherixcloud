@@ -202,7 +202,7 @@ export default function Footer() {
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-[oklch(0.24_0.025_250/0.3)]">
           <p className="text-xs text-muted-foreground">
-            &copy; {year} AtherixCloud. All rights reserved.
+            &copy; {year} ENDERNET. All rights reserved.
           </p>
           <p className="text-xs text-muted-foreground">
             Built with ❤️ using{" "}

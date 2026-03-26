@@ -41,10 +41,13 @@ export interface VPSPlanInput {
   'price' : bigint,
 }
 export interface _SERVICE {
+  'addCategory' : ActorMethod<[string], boolean>,
   'addVPSPlan' : ActorMethod<[VPSPlanInput], string>,
   'adminLogin' : ActorMethod<[string, string], boolean>,
+  'deleteCategory' : ActorMethod<[string], boolean>,
   'deleteVPSPlan' : ActorMethod<[string], boolean>,
   'getAllSubmissions' : ActorMethod<[], Array<Submission>>,
+  'getCategories' : ActorMethod<[], Array<string>>,
   'getVPSPlans' : ActorMethod<[], Array<VPSPlan>>,
   'submitContactForm' : ActorMethod<[ContactFormInput], undefined>,
   'updateVPSPlan' : ActorMethod<[string, VPSPlan], boolean>,
